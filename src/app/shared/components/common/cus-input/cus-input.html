@@ -1,0 +1,41 @@
+<div class="cus-input">
+  <p-floatlabel
+    variant="in"
+    [class.has-value]="!!value"
+    [class.p-disabled]="disabled"
+  >
+    <input
+      pInputText
+      [id]="id"
+      [name]="label"
+      class="w-full"
+      [class]="classInput"
+      [class.ng-dirty]="value"
+      [type]="type"
+      [value]="value"
+      [invalid]="!!error"
+      [disabled]="disabled"
+      [attr.maxlength]="maxlength"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="none"
+      spellcheck="false"
+      (input)="onInputChange($event)"
+      [tabindex]="tabindex"
+      [attr.tabindex]="disabled ? -1 : 0"
+      (blur)="onInputBlur()"
+      (paste)="onPaste($event)"
+      (focus)="onInputFocus()"
+    />
+    <label [for]="id">{{ label }}</label>
+  </p-floatlabel>
+  @if (error) {
+    <div
+      [id]="`${id}-help`"
+      class="p-error mt-1 mx-4 text-red-100 flex items-center gap-1 text-xs"
+    >
+      <img [src]="'icons/error.svg'" alt="error" class="w-4 h-4" />
+      {{ error }}
+    </div>
+  }
+</div>

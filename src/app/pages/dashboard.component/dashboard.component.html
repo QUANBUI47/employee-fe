@@ -1,0 +1,6 @@
+<div style="padding: 24px">
+  <h2 *ngIf="data">Xin chào {{ data?.username }}</h2>
+  <pre *ngIf="data">{{ data?.authorities | json }}</pre>
+  <div *ngIf="error" style="color: red">{{ error }}</div>
+  <div *ngIf="!data && !error">Đang tải...</div>
+</div>

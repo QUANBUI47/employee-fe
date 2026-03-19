@@ -1,0 +1,59 @@
+/* Override PrimeNG styles for better integration with Tailwind */
+
+.cus-input {
+  font-family: var(--font-sf-pro-display);
+  ::ng-deep .p-floatlabel label {
+    color: var(--color-neutral-60);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 16px);
+    display: block;
+  }
+
+  ::ng-deep .p-floatlabel:has(input:focus) label,
+  ::ng-deep .p-floatlabel.has-value label {
+    font-size: 12px;
+    line-height: 14px;
+  }
+
+  ::ng-deep .p-inputtext {
+    background-color: var(--color-neutral-05);
+    border-radius: 12px;
+    border: 1px solid var(--color-neutral-10);
+    padding: 24px 8px 8px 8px;
+    font-size: 18px;
+    line-height: 22px;
+    font-weight: 400;
+    color: var(--color-neutral-100);
+  }
+
+  ::ng-deep .p-inputtext.p-invalid {
+    border-color: var(--color-red-100) !important;
+  }
+
+  ::ng-deep input[type="number"]::-webkit-outer-spin-button,
+  ::ng-deep input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  ::ng-deep input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+    appearance: textfield;
+  }
+
+  /* Disabled state styling */
+  ::ng-deep .p-inputtext.p-disabled {
+    opacity: 0.6;
+    background-color: var(--color-neutral-05);
+    color: var(--color-neutral-60);
+  }
+
+  ::ng-deep .p-floatlabel:has(.p-inputtext.p-disabled) label {
+    color: var(--color-neutral-60);
+  }
+}

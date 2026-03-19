@@ -1,0 +1,117 @@
+<div class="grid grid-cols-2">
+  <div class="flex flex-col pt-12 pb-7 px-12 items-start bg-[#F0F3F7]">
+    <div class="flex items-start justify-center gap-3">
+      <img [src]="'icons/logo.svg'" class="h-8 w-8" />
+      <span class="font-semibold text-[20px] text-[#0F1724]">StaffPortal</span>
+    </div>
+    <div class="w-full flex items-center justify-center py-12 px-[100px]">
+      <img [src]="'images/hr.svg'" class="h-100 w-100" />
+    </div>
+    <div class="flex flex-col gap-5 items-start">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M16 3C14.8962 3 14 3.89617 14 5V11C14 12.1038 14.8962 13 16 13C16.5519 13 17 13.4481 17 14V15C17 16.1038 16.1038 17 15 17C14.4481 17 14 17.4481 14 18V20C14 20.5519 14.4481 21 15 21C18.3115 21 21 18.3115 21 15V5C21 3.89617 20.1038 3 19 3H16M5 3C3.89617 3 3 3.89617 3 5V11C3 12.1038 3.89617 13 5 13C5.55192 13 6 13.4481 6 14V15C6 16.1038 5.10383 17 4 17C3.44808 17 3 17.4481 3 18V20C3 20.5519 3.44808 21 4 21C7.31149 21 10 18.3115 10 15V5C10 3.89617 9.10383 3 8 3H5"
+          stroke="#2563EB"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <div class="font-medium text-[20px] text-[#0F1724]">
+        "Nền tảng này đã giúp chúng tôi tự động hóa <br />
+        hoàn toàn quy trình nhân sự, tiết kiệm hàng ngàn <br />
+        giờ làm việc mỗi năm."
+      </div>
+      <div class="flex justify-center gap-4">
+        <img [src]="'icons/avt-test.svg'" class="h-12 w-12" />
+        <div class="flex flex-col gap-1">
+          <span class="font-semibold text-[16px] text-[#0F1724]">Trần Thị B</span>
+          <span class="text-[14px] text-[#7B8794]">Giám đốc Nhân sự</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col py-[122px] px-[148px] bg-[#F5F7FB]">
+    <div class="flex items-center justify-center p-1 rounded-[8px] bg-[#F0F3F7]">
+      <div
+        class="flex items-center justify-center rounded-[6px] bg-[#F5F7FB] shadow-white/5 p-2 w-full font-medium text-[24px] text-[#0F1724]"
+      >
+        ĐĂNG NHẬP
+      </div>
+    </div>
+
+    <div class="pt-10 flex flex-col gap-2">
+      <span class="font-semibold text-[28px] text-[#0F1724]">Chào mừng trở lại</span>
+      <span class="text-[15px] text-[#7B8794]">
+        Nhập tên tài khoản và mật khẩu của bạn để truy cập hệ thống
+      </span>
+    </div>
+
+    <div class="flex flex-col pt-12">
+      <form [formGroup]="loginForm" (ngSubmit)="submit()" class="flex flex-col gap-5">
+        <!-- USERNAME -->
+        <div class="flex flex-col gap-2">
+          <span class="font-medium text-[14px] text-[#0F1724]">Tên tài khoản</span>
+          <input
+            type="text"
+            formControlName="username"
+            placeholder="Nhập tên tài khoản"
+            class="h-[44px] px-[14px] py-[12px] rounded-[6px] bg-white shadow-white/8 text-[14px] text-[#0F1724] outline-none"
+          />
+          <small *ngIf="f.username.touched && f.username.invalid" class="text-red-500">
+            Không được để trống
+          </small>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="flex flex-col gap-2">
+          <span class="font-medium text-[14px] text-[#0F1724]">Mật khẩu</span>
+          <div class="relative">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Nhập mật khẩu"
+              class="w-full h-[44px] px-[14px] py-[12px] pr-[40px] rounded-[6px] bg-white shadow-white/8 text-[14px] text-[#0F1724] outline-none"
+            />
+            <!-- BUTTON TOGGLE -->
+            <button
+              type="button"
+              (click)="togglePassword()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm"
+            >
+              {{ showPassword ? 'Ẩn' : 'Hiện' }}
+            </button>
+          </div>
+
+          <small *ngIf="f.password.touched && f.password.hasError('required')" class="text-red-500">
+            Không được để trống
+          </small>
+          <small
+            *ngIf="f.password.touched && f.password.hasError('minlength')"
+            class="text-red-500"
+          >
+            Mật khẩu tối thiểu 6 ký tự
+          </small>
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          type="submit"
+          [disabled]="loading"
+          class="h-[44px] rounded-[6px] bg-blue-500 text-white"
+        >
+          {{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
+        </button>
+
+        <!-- Lỗi hệ thống (401, v.v.) -->
+        <div *ngIf="error" class="text-red-500 mt-2">{{ error }}</div>
+      </form>
+    </div>
+  </div>
+</div>
