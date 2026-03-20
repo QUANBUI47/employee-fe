@@ -1,0 +1,16 @@
+.layout {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .sidebar {
+    width: 240px;
+    background: #ECF1F4;
+    color: white;
+  }
+  
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    background: #F1F5F9;
+  }
