@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { HomeService } from '../../services/home.service';
 import { Employee, Page } from '../../model/home.model';
 import { FormsModule } from '@angular/forms';
@@ -33,7 +34,8 @@ export class EmployeeComponent implements OnInit {
   keyword = '';
 
   constructor(private homeService: HomeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -96,5 +98,34 @@ export class EmployeeComponent implements OnInit {
   get showingTo(): number {
     const end = (this.page + 1) * this.size;
     return Math.min(end, this.totalElements);
+  }
+
+  goToDetail(id: number) {
+    this.router.navigate(['/employee', id]);
+  }
+
+  onView(id: number, event: Event) {
+    event.stopPropagation();
+    this.goToDetail(id);
+  }
+
+  onEdit(id: number, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/employee', id, 'edit']);
+  }
+
+  onDelete(id: number, event: Event) {
+    event.stopPropagation();
+    if (confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+      this.homeService.deleteEmployee(id).subscribe({
+        next: () => {
+          this.loadEmployees();
+        },
+        error: (err) => {
+          console.error('[ERROR] Lỗi khi xóa nhân viên', err);
+          alert('Không thể xóa nhân viên. Vui lòng thử lại.');
+        }
+      });
+    }
   }
 }

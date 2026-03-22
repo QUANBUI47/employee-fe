@@ -75,7 +75,7 @@
 
         <tbody>
           @for (e of employees; track e.id) {
-            <tr class="border-b border-black/5 text-[14px] text-[#0F172A]">
+            <tr class="border-b border-black/5 text-[14px] text-[#0F172A] cursor-pointer hover:bg-gray-50 transition-colors" (click)="goToDetail(e.id)">
               <td class="py-3 px-4 font-medium ">{{ e.name }}</td>
               <td class="py-3 px-4">{{ e.dob }}</td>
               <td class="py-3 px-4">{{ e.phone }}</td>
@@ -83,16 +83,16 @@
 
               <td class="py-3 px-4">
                 <div class="flex items-center justify-center gap-3">
-                  <button class="hover:opacity-80">
-                    <img src="icons/view.svg" class="h-[16px] w-[16px]" />
+                  <button class="hover:opacity-80" (click)="onView(e.id, $event)">
+                    <img src="icons/view.svg" class="h-[16px] w-[16px]" title="Xem chi tiết" />
                   </button>
 
-                  <button class="hover:opacity-80">
-                    <img src="icons/edit.svg" class="h-[16px] w-[16px]" />
+                  <button class="hover:opacity-80" (click)="onEdit(e.id, $event)">
+                    <img src="icons/edit.svg" class="h-[16px] w-[16px]" title="Chỉnh sửa" />
                   </button>
 
-                  <button class="hover:opacity-80">
-                    <img src="icons/delete.svg" class="h-[16px] w-[16px]" />
+                  <button class="hover:opacity-80" (click)="onDelete(e.id, $event)">
+                    <img src="icons/delete.svg" class="h-[16px] w-[16px]" title="Xóa" />
                   </button>
                 </div>
               </td>

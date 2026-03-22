@@ -5,6 +5,8 @@ import LoginComponent from './modules/login/pages/login.component/login.componen
 import { DashboardComponent } from './modules/home/pages/dashboard.component/dashboard.component';
 import { HomeComponent } from './modules/home/pages/home.component/home.component';
 import { EmployeeComponent } from './modules/home/pages/employee.component/employee.component';
+import { EmployeeEditComponent } from './modules/home/pages/employee-edit.component/employee-edit.component';
+import { EmployeeViewComponent } from './modules/home/pages/employee-view.component/employee-view.component';
 
 export const routes: Routes = [
 
@@ -17,6 +19,8 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'employee', component: EmployeeComponent },
+      { path: 'employee/:id', component: EmployeeViewComponent },
+      { path: 'employee/:id/edit', component: EmployeeEditComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

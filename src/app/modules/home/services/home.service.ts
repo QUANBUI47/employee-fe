@@ -19,4 +19,23 @@ export class HomeService {
       { params }
     );
   }
+
+  getEmployee(id: number) {
+    return this.http.get<Employee>(
+      `${environment.baseUrl}${environment.endpoints.employees}/${id}`
+    );
+  }
+
+  updateEmployee(id: number, employeeData: any) {
+    return this.http.put<Employee>(
+      `${environment.baseUrl}${environment.endpoints.employees}/${id}`,
+      employeeData
+    );
+  }
+
+  deleteEmployee(id: number) {
+    return this.http.delete(
+      `${environment.baseUrl}${environment.endpoints.employees}/${id}`
+    );
+  }
 }
