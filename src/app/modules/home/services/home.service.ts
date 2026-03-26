@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environments';
-import { Employee, Page } from '../model/home.model';
+import { Employee, Page, Language, Certificate, EmployeeRequest } from '../model/home.model';
 
 @Injectable({ providedIn: 'root' })
 export class HomeService {
@@ -26,7 +26,26 @@ export class HomeService {
     );
   }
 
-  updateEmployee(id: number, employeeData: any) {
+  getLanguages() {
+    return this.http.get<Language[]>(
+      `${environment.baseUrl}${environment.endpoints.languages}`
+    );
+  }
+
+  getCertificates() {
+    return this.http.get<Certificate[]>(
+      `${environment.baseUrl}${environment.endpoints.certificates}`
+    );
+  }
+
+  createEmployee(employeeData: EmployeeRequest) {
+    return this.http.post<Employee>(
+      `${environment.baseUrl}${environment.endpoints.employees}`,
+      employeeData
+    );
+  }
+
+  updateEmployee(id: number, employeeData: EmployeeRequest) {
     return this.http.put<Employee>(
       `${environment.baseUrl}${environment.endpoints.employees}/${id}`,
       employeeData

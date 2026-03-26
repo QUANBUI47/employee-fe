@@ -1,0 +1,33 @@
+@if (isOpen) {
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" (click)="!isDeleting && onCancel()"></div>
+
+  <!-- Dialog Panel -->
+  <div
+    class="relative bg-white rounded-[16px] shadow-xl w-full max-w-md overflow-hidden transform transition-all p-8 flex flex-col items-center">
+    <div class="text-center w-full">
+      <h3 class="text-[20px] font-bold text-[#0F172A] mb-3">Xóa nhân viên</h3>
+      <p class="text-[15px] text-[#475569] leading-relaxed">
+        Bạn có chắc muốn xóa nhân viên <span class="font-bold text-[#0F172A]">"{{ employeeName }}"</span> không?
+      </p>
+      <p class="text-[13px] text-red-500 mt-2 font-medium">Hành động này không thể hoàn tác.</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-8 flex gap-3 w-full">
+      <button type="button" (click)="onCancel()" [disabled]="isDeleting"
+        class="flex-1 px-5 py-2.5 bg-white border border-[#E2E8F0] rounded-[6px] text-[15px] font-medium text-[#334155] hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50">
+        Hủy
+      </button>
+      <button type="button" (click)="onConfirm()" [disabled]="isDeleting"
+        class="flex-1 px-5 py-2.5 bg-red-600 text-white rounded-[6px] text-[15px] font-medium hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center">
+        @if(isDeleting) {
+        <i class="pi pi-spin pi-spinner mr-2 text-[14px]"></i>
+        }
+        Xác nhận
+      </button>
+    </div>
+  </div>
+</div>
+}

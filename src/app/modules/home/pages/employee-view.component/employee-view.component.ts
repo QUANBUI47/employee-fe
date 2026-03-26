@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HomeService } from '../../services/home.service';
@@ -11,16 +11,14 @@ import { Employee } from '../../model/home.model';
   templateUrl: './employee-view.component.html'
 })
 export class EmployeeViewComponent implements OnInit {
-  employee: Employee | null = null;
+  employee = signal<Employee | null>(null);
   employeeId!: number;
-  isLoading = true;
-  message: { type: 'success' | 'error', text: string } | null = null;
+  isLoading = signal(true);
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private homeService: HomeService,
-    private cdr: ChangeDetectorRef
+    private homeService: HomeService
   ) {}
 
   ngOnInit() {
@@ -34,19 +32,16 @@ export class EmployeeViewComponent implements OnInit {
   }
 
   loadEmployee() {
-    this.isLoading = true;
-    this.message = null;
+    this.isLoading.set(true);
+    this.isLoading.set(true);
     this.homeService.getEmployee(this.employeeId).subscribe({
       next: (data: Employee) => {
-        this.employee = data;
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.employee.set(data);
+        this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('[ERROR]', err);
-        this.message = { type: 'error', text: 'Không thể tải thông tin nhân viên.' };
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        console.error('[ERROR] Lỗi khi tải chi tiết nhân viên', err);
+        this.isLoading.set(false);
       }
     });
   }

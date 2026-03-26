@@ -1,5 +1,5 @@
 <div class="layout">
-    <app-side-bar [user]="user" [roleLabel]="roleLabel" class="sidebar"></app-side-bar>
+    <app-side-bar [user]="user()" [roleLabel]="roleLabel()" class="sidebar"></app-side-bar>
   
     <div class="content">
       <router-outlet></router-outlet>

@@ -1,8 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
-
-import { RouterModule } from '@angular/router';
+import { Component, inject, input } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { UserInfo } from '../../model/home.model';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../../core/service/auth.service';
 
 @Component({
   selector: 'app-side-bar',
@@ -13,26 +13,24 @@ import { CommonModule } from '@angular/common';
 })
 export class SideBar {
 
-
-  @Input() user?: UserInfo;
-  @Input() roleLabel = '';
-
+  user = input<UserInfo | null>(null);
+  roleLabel = input<string>('');
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
 
   menus = [
     {
       id: 1,
-      label: 'Dashboard',
-      path: '/dashboard',
-      icon: '/icons/dashboard-icon.svg',
-      iconActive: '/icons/dashboard-icon-ac.svg'
-    },
-    {
-      id: 2,
       label: 'Employee',
       path: '/employee',
       icon: '/icons/employee-icon.svg',
       iconActive: '/icons/employee-icon-ac.svg'
     }
   ];
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login'], { replaceUrl: true });
+  }
 }

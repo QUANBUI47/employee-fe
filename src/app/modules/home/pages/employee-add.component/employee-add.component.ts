@@ -1,20 +1,20 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { HomeService } from '../../services/home.service';
-import { Employee, Language, Certificate, EmployeeRequest } from '../../model/home.model';
+import { Language, Certificate, EmployeeRequest } from '../../model/home.model';
 
 @Component({
-  selector: 'app-employee-edit',
+  selector: 'app-employee-add',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './employee-edit.component.html'
+  templateUrl: './employee-add.component.html',
 })
-export class EmployeeEditComponent implements OnInit {
+export class EmployeeAddComponent implements OnInit {
   employeeForm!: FormGroup;
-  employeeId!: number;
-  isLoading = signal(true);
+
+  isLoading = signal(false);
   isSaving = signal(false);
 
   availableLanguages = signal<Language[]>([]);
@@ -23,42 +23,34 @@ export class EmployeeEditComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private route: ActivatedRoute,
     private router: Router,
     private homeService: HomeService
-  ) {
-    this.createForm();
-  }
+  ) { }
 
   ngOnInit() {
     this.homeService.getLanguages().subscribe(res => {
       this.availableLanguages.set(res);
     });
 
-
     this.homeService.getCertificates().subscribe(res => {
-
       this.availableCertificates.set(res);
     });
 
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.employeeId = +id;
-        this.loadEmployee();
-      }
-    });
+    this.initForm();
   }
 
-  createForm() {
+  initForm() {
     this.employeeForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
-      dob: ['', [Validators.required, this.dobValidator.bind(this)]],
+      dob: ['', [Validators.required, this.dobValidator]],
       phone: ['', [Validators.required, Validators.pattern(/^\+?\d{9,15}$/)]],
       address: ['', [Validators.required, Validators.maxLength(255)]],
       languages: this.fb.array([]),
       certificates: this.fb.array([])
     });
+
+    this.addLanguage();
+    this.addCertificate();
   }
 
   dobValidator(control: AbstractControl) {
@@ -141,56 +133,21 @@ export class EmployeeEditComponent implements OnInit {
     return this.availableLanguages().filter(l => l.name === langName);
   }
 
-  loadEmployee() {
-    this.isLoading.set(true);
-
-    this.homeService.getEmployee(this.employeeId).subscribe({
-      next: (data: Employee) => {
-        this.employeeForm.patchValue({
-          name: data.name,
-          dob: data.dob,
-          phone: data.phone,
-          address: data.address
-        });
-
-        this.languages.clear();
-        if (data.languages) {
-          data.languages.forEach((lang: Language) => {
-            this.languages.push(this.fb.group({
-              name: [lang.name, Validators.required],
-              level: [lang.id, Validators.required]
-            }));
-          });
-        }
-
-        this.certificates.clear();
-        if (data.certificates) {
-          data.certificates.forEach((cert: Certificate) => {
-            this.certificates.push(this.fb.group({
-              id: [cert.id, Validators.required]
-            }));
-          });
-        }
-
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('[ERROR] Lỗi khi gọi API employee', err);
-        this.isLoading.set(false);
-      }
-    });
+  goBack() {
+    this.router.navigate(['/employee']);
   }
 
   onSubmit() {
+    this.employeeForm.markAllAsTouched();
     if (this.employeeForm.invalid) {
-      this.employeeForm.markAllAsTouched();
       return;
     }
 
     this.isSaving.set(true);
+    this.isSaving.set(true);
 
     const formVal = this.employeeForm.value;
-    const updatedData: EmployeeRequest = {
+    const newEmployeeData: EmployeeRequest = {
       name: formVal.name,
       dob: formVal.dob,
       phone: formVal.phone,
@@ -199,18 +156,15 @@ export class EmployeeEditComponent implements OnInit {
       certificateIds: formVal.certificates ? formVal.certificates.map((cert: any) => cert.id).filter((id: number) => id) : []
     };
 
-    this.homeService.updateEmployee(this.employeeId, updatedData).subscribe({
+    this.homeService.createEmployee(newEmployeeData).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.router.navigate(['/employee'], { queryParams: { action: 'edit' } });
+        this.router.navigate(['/employee'], { queryParams: { action: 'add' } });
       },
       error: (err) => {
         this.isSaving.set(false);
+        console.error('Create failed', err);
       }
     });
-  }
-
-  goBack() {
-    this.router.navigate(['/employee', this.employeeId]);
   }
 }

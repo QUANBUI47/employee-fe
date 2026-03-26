@@ -21,6 +21,15 @@ export interface Employee {
   certificates: Certificate[];
 }
 
+export interface EmployeeRequest {
+  name: string;
+  dob: string;
+  phone: string;
+  address: string;
+  languageIds: number[];
+  certificateIds: number[];
+}
+
 
 export interface Page<T> {
   content: T[];

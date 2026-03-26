@@ -9,7 +9,7 @@
     </div>
 
     <div class="flex items-center justify-between">
-      <h1 class="text-[24px] font-bold text-[#0F172A]">Chỉnh sửa nhân viên</h1>
+      <h1 class="text-[24px] font-bold text-[#0F172A]">Thêm mới nhân viên</h1>
       <div class="flex items-center gap-3">
         <button type="button" (click)="goBack()"
           class="px-5 py-2 border border-[#E2E8F0] rounded-[6px] text-[14px] font-medium text-[#334155] bg-white hover:bg-gray-50 transition-colors shadow-sm">
@@ -20,7 +20,7 @@
           @if(isSaving()) {
           <i class="pi pi-spin pi-spinner mr-2"></i>
           }
-          Xác nhận
+          Thêm mới
         </button>
       </div>
     </div>
@@ -147,6 +147,13 @@
             @for (certCtrl of certificates.controls; track $index) {
             <div [formGroupName]="$index"
               class="flex items-end gap-4 p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0]">
+
+              <div class="flex-[2]">
+                <label class="block text-[12px] font-medium text-[#64748B] mb-1">Mã chứng chỉ</label>
+                <input type="text" [value]="certCtrl.get('id')?.value" readonly placeholder="Auto-generated"
+                  class="w-full h-[38px] px-3 border border-[#E2E8F0] rounded-[6px] text-[13px] text-[#94A3B8] bg-[#F1F5F9] focus:outline-none pointer-events-none select-none">
+              </div>
+
               <div class="flex-[3]">
                 <label class="block text-[12px] font-medium text-[#64748B] mb-1">Tên chứng chỉ</label>
                 <div class="relative">
@@ -163,11 +170,6 @@
                 @if (getFieldError('id_cert', certCtrl.get('id')!)) {
                 <p class="text-red-500 text-[11px] mt-1">{{ getFieldError('id_cert', certCtrl.get('id')!) }}</p>
                 }
-              </div>
-              <div class="flex-[2]">
-                <label class="block text-[12px] font-medium text-[#64748B] mb-1">Mã chứng chỉ</label>
-                <input type="text" [value]="certCtrl.get('id')?.value" readonly placeholder="Auto-generated"
-                  class="w-full h-[38px] px-3 border border-[#E2E8F0] rounded-[6px] text-[13px] text-[#94A3B8] bg-[#F1F5F9] focus:outline-none pointer-events-none select-none">
               </div>
               <button type="button" (click)="removeCertificate($index)"
                 class="h-[38px] w-[38px] flex items-center justify-center border border-[#E2E8F0] rounded-[6px] text-[#94A3B8] hover:text-red-500 hover:border-red-200 bg-white transition-colors shrink-0">

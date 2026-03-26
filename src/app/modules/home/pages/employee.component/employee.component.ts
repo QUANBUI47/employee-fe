@@ -1,14 +1,17 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HomeService } from '../../services/home.service';
 import { Employee, Page } from '../../model/home.model';
 import { FormsModule } from '@angular/forms';
+import { DeleteDialogComponent } from '../../components/delete-dialog/delete-dialog.component';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-employee',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DeleteDialogComponent],
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.css'],
 })
@@ -22,41 +25,78 @@ export class EmployeeComponent implements OnInit {
     { key: 'actions', label: 'Hành động', width: '10%' }
   ];
 
-  employees: Employee[] = [];
-  page = 0;
-  size = 10;
-  totalPages = 0;
-  totalElements = 0;
+  employees = signal<Employee[]>([]);
+  page = signal(0);
+  size = signal(10);
+  totalPages = signal(0);
+  totalElements = signal(0);
 
-  /** Mảng số trang (0-based) - cách này ổn định hơn [].constructor */
-  pages: number[] = [];
+  keyword = signal('');
+  isDeleteDialogOpen = signal(false);
+  employeeToDelete = signal<Employee | null>(null);
+  isDeleting = signal(false);
+  successMessage = signal<string | null>(null);
 
-  keyword = '';
+  pages = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i));
+  showingFrom = computed(() => this.page() * this.size() + 1);
+  showingTo = computed(() => {
+    const end = (this.page() + 1) * this.size();
+    return Math.min(end, this.totalElements());
+  });
 
-  constructor(private homeService: HomeService,
-    private cdr: ChangeDetectorRef,
-    private router: Router
-  ) {}
+  private searchSubject = new Subject<string>();
+
+  constructor(
+    private homeService: HomeService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['action'] === 'add') {
+        this.successMessage.set('Tạo mới nhân viên thành công!');
+        this.clearQueryParam();
+      } else if (params['action'] === 'edit') {
+        this.successMessage.set('Cập nhật nhân viên thành công!');
+        this.clearQueryParam();
+      }
+      
+      if (this.successMessage()) {
+        setTimeout(() => {
+          this.successMessage.set(null);
+        }, 4000);
+      }
+    });
+
+    this.searchSubject.pipe(
+      debounceTime(150),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.page.set(0);
+      this.keyword.set(searchTerm);
+      this.loadEmployees();
+    });
+
     this.loadEmployees();
   }
 
-  loadEmployees() {
-    console.log(`[DEBUG] Đang load trang ${this.page} (keyword: "${this.keyword}")`);
+  clearQueryParam() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { action: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
 
-    this.homeService.getEmployees(this.page, this.size, this.keyword)
+  loadEmployees() {
+    this.homeService.getEmployees(this.page(), this.size(), this.keyword())
       .subscribe({
         next: (res: Page<Employee>) => {
-          this.employees = res.content;
-          this.totalPages = res.totalPages;
-          this.totalElements = res.totalElements;
-          this.cdr.detectChanges();
-
-          // Tạo lại mảng trang mỗi lần load
-          this.pages = Array.from({ length: this.totalPages }, (_, i) => i);
-
-          console.log(`[DEBUG] Nhận được: trang ${res.number}, tổng ${this.totalPages} trang, ${this.employees.length} nhân viên`);
+          this.employees.set(res.content);
+          this.totalPages.set(res.totalPages);
+          this.totalElements.set(res.totalElements);
         },
         error: (err) => {
           console.error('[ERROR] Gọi API thất bại:', err);
@@ -65,43 +105,43 @@ export class EmployeeComponent implements OnInit {
   }
 
   search() {
-    this.page = 0;
+    this.page.set(0);
     this.loadEmployees();
   }
 
   goPrev() {
-    if (this.page > 0) {
-      this.page--;
+    if (this.page() > 0) {
+      this.page.update(p => p - 1);
       this.loadEmployees();
     }
   }
 
   goNext() {
-    if (this.page < this.totalPages - 1) {
-      this.page++;
+    if (this.page() < this.totalPages() - 1) {
+      this.page.update(p => p + 1);
       this.loadEmployees();
     }
   }
 
   goToPage(p: number) {
-    if (p >= 0 && p < this.totalPages) {
-      this.page = p;
+    if (p >= 0 && p < this.totalPages()) {
+      this.page.set(p);
       this.loadEmployees();
     }
   }
 
-  // Hiển thị "Hiển thị 1–10 trong 17 nhân viên"
-  get showingFrom(): number {
-    return this.page * this.size + 1;
-  }
-
-  get showingTo(): number {
-    const end = (this.page + 1) * this.size;
-    return Math.min(end, this.totalElements);
-  }
-
   goToDetail(id: number) {
     this.router.navigate(['/employee', id]);
+  }
+
+  goToAdd() {
+    this.router.navigate(['/employee/add']);
+  }
+
+  onSearchInput(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    this.keyword.set(val);
+    this.searchSubject.next(val);
   }
 
   onView(id: number, event: Event) {
@@ -114,18 +154,33 @@ export class EmployeeComponent implements OnInit {
     this.router.navigate(['/employee', id, 'edit']);
   }
 
-  onDelete(id: number, event: Event) {
+  onDelete(employee: Employee, event: Event) {
     event.stopPropagation();
-    if (confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
-      this.homeService.deleteEmployee(id).subscribe({
-        next: () => {
-          this.loadEmployees();
-        },
-        error: (err) => {
-          console.error('[ERROR] Lỗi khi xóa nhân viên', err);
-          alert('Không thể xóa nhân viên. Vui lòng thử lại.');
-        }
-      });
-    }
+    this.employeeToDelete.set(employee);
+    this.isDeleteDialogOpen.set(true);
+  }
+
+  cancelDelete() {
+    this.isDeleteDialogOpen.set(false);
+    this.employeeToDelete.set(null);
+  }
+
+  confirmDelete() {
+    const employee = this.employeeToDelete();
+    if (!employee) return;
+    this.isDeleting.set(true);
+    this.homeService.deleteEmployee(employee.id).subscribe({
+      next: () => {
+        this.isDeleting.set(false);
+        this.isDeleteDialogOpen.set(false);
+        this.employeeToDelete.set(null);
+        this.loadEmployees();
+      },
+      error: (err) => {
+        console.error('Delete error', err);
+        this.isDeleting.set(false);
+        alert('Có lỗi xảy ra khi xóa nhân viên!');
+      }
+    });
   }
 }
